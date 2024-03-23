@@ -13,16 +13,22 @@ const app = express();
 //   /quotes/random     - Should return ONE quote (json)
 app.get("/quotes", (req, res) => {
   res.send(quotes);
-})
+});
 
 app.get("/quote", (req, res) => {
   res.send(pickFromArray(quotes));
 });
 
-
-app.get("/", (request, response) => {
-  response.send("Neill's Quote Server!  Ask me for /quotes/random, or /quotes");
+app.get("/quotes/search", (req, res) => {
+  let searchQuery = req.query.term.toLowerCase();
+  const foundQuote = quotes.find((quote) => {
+    return (
+      quote.quote.toLowerCase().includes(searchQuery) || quote.author.toLowerCase().includes(searchQuery)
+    );
+  });
+  res.send(foundQuote);
 });
+
 
 //START OF YOUR CODE...
 
