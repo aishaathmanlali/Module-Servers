@@ -2,7 +2,7 @@
 // This is where your node app starts
 
 //load the 'express' module which makes writing webservers easy
-import express from "express";
+import express, { request, response } from "express";
 //load the quotes JSON
 import quotes from "./quotes.json" assert { type: "json" };
 
@@ -11,6 +11,23 @@ const app = express();
 //   /                  - Return some helpful welcome info (text)
 //   /quotes            - Should return all quotes (json)
 //   /quotes/random     - Should return ONE quote (json)
+app.get("/quotes", (req, res) => {
+  res.send(quotes);
+})
+
+app.get("/hello", (request, response) => {
+  const name = request.query.name;
+  response.send("Hello I am  " + name);
+});
+
+app.get("/quote", (request, response) => {
+  response.send(pickFromArray(quotes));
+});
+
+app.get("/quotes", (request, response) => {
+  response.send(quotes);
+});
+
 app.get("/", (request, response) => {
   response.send("Neill's Quote Server!  Ask me for /quotes/random, or /quotes");
 });

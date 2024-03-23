@@ -5,12 +5,15 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node --no-warnings=ExperimentalWarning server.js"
+    "start": "nodemon --no-warnings=ExperimentalWarning server.js"
   },
   "license": "MIT",
   "keywords": [
     "node",
     "glitch",
     "express"
-  ]
+  ],
+  "dependencies": {
+    "express": "^4.18.3"
+  }
 }
