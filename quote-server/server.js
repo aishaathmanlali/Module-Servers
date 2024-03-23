@@ -15,18 +15,10 @@ app.get("/quotes", (req, res) => {
   res.send(quotes);
 })
 
-app.get("/hello", (request, response) => {
-  const name = request.query.name;
-  response.send("Hello I am  " + name);
+app.get("/quote", (req, res) => {
+  res.send(pickFromArray(quotes));
 });
 
-app.get("/quote", (request, response) => {
-  response.send(pickFromArray(quotes));
-});
-
-app.get("/quotes", (request, response) => {
-  response.send(quotes);
-});
 
 app.get("/", (request, response) => {
   response.send("Neill's Quote Server!  Ask me for /quotes/random, or /quotes");
