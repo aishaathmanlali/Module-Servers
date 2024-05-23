@@ -72,6 +72,25 @@ app.delete("/messages/:id", (request, response) => {
   }
 });
 
+//To search a message by text substring
+app.get("/messages/search", (request, response) => {
+  const searchTerm = request.query.text;
+  if(!searchTerm){
+    return response
+      .status(400)
+      .send({ error: "Query parameter 'text' is required" });
+  }
+  const filteredMessages = messages.filter(message => message.text.includes(searchTerm));
+  response.send(filteredMessages);
+});
+
+// To get the most recent 10 messages
+app.get("/messages/latest", (request, response) => {
+  const latestMessages = messages.slice(-10).reverse();
+  response.send(latestMessages);
+});
+
+
 app.listen(process.env.PORT, () => {
   console.log(`listening on PORT ${process.env.PORT}...`);
 });
