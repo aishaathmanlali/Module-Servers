@@ -28,7 +28,7 @@ app.get("/", (request, response) => {
 
 // To read all the messages
 app.get("/messages", (request, response) => {
-  res.send(messages);
+  response.send(messages);
 });
 
 //To read one specific message  by Id
