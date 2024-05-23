@@ -44,6 +44,13 @@ app.get("/messages/:id", (request, response) => {
 
 //To create a new message
 app.post("/messages", (request, response) => {
+  const { from, text } = request.body;
+
+  if (!from || !text) {
+    return response
+      .status(400)
+      .send({ error: "'from' and 'text' fields are required" });
+  }
   const newMessage = {
     id: messages.length,
     from: request.body.from,
