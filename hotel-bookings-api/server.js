@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs/promises";
 import moment from "moment";
+import validator from "validator";
 import bookings from "./bookings.json" with { type: "json" };
 
 // initialise the server
@@ -23,7 +24,28 @@ const getNextId = () => {
 
 const validateBooking = (booking) => {
   const requiredFields = ["roomId", "title", "firstName", "surname", "email", "checkInDate", "checkOutDate"];
-  return requiredFields.every(field => booking[field] && booking[field].toString().trim() !== "");
+  const hasRequiredFields = requiredFields.every(field => booking[field] && booking[field].toString().trim() !== "");
+
+  if (!hasRequiredFields) {
+    return { isValid: false, message: "All fields are required and must not be empty" };
+  }
+
+  if (!validator.isEmail(booking.email)) {
+    return { isValid: false, message: "Invalid email address" };
+  }
+
+  const checkInDate = moment(booking.checkInDate, "YYYY-MM-DD");
+  const checkOutDate = moment(booking.checkOutDate, "YYYY-MM-DD");
+
+  if (!checkInDate.isValid() || !checkOutDate.isValid()) {
+    return { isValid: false, message: "Invalid date format. Use YYYY-MM-DD" };
+  }
+
+  if (!checkOutDate.isAfter(checkInDate)) {
+    return { isValid: false, message: "Check-out date must be after check-in date" };
+  }
+
+  return { isValid: true };
 };
 
 // Read all bookings
