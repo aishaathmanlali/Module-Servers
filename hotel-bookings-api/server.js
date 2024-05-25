@@ -4,6 +4,7 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs/promises";
+import moment from "moment";
 import bookings from "./bookings.json" with { type: "json" };
 
 // initialise the server
@@ -28,6 +29,32 @@ const validateBooking = (booking) => {
 // Read all bookings
 app.get("/bookings", (request, response) => {
   response.json(bookings);
+});
+
+// Get bookings by search(date)
+app.get("/bookings/search", (request, response) => {
+  const { date } = request.query;
+
+  if (!date) {
+    return response.status(400).json({ error: "Date query parameter is required" });
+  }
+
+  const searchDate = moment(date, "YYYY-MM-DD");
+  if (!searchDate.isValid()) {
+    return response.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+  }
+
+  console.log(`Searching for bookings on date: ${searchDate.format("YYYY-MM-DD")}`);
+
+  const results = bookings.filter(booking => {
+    const checkInDate = moment(booking.checkInDate, "YYYY-MM-DD");
+    const checkOutDate = moment(booking.checkOutDate, "YYYY-MM-DD");
+    const isInRange = searchDate.isBetween(checkInDate, checkOutDate, null, '[]');
+    console.log(`Booking ID: ${booking.id}, Check-in: ${checkInDate.format("YYYY-MM-DD")}, Check-out: ${checkOutDate.format("YYYY-MM-DD")}, Is in range: ${isInRange}`);
+    return isInRange;
+  });
+
+  response.json(results);
 });
 
 //Read one specific booking by Id
@@ -59,7 +86,7 @@ app.post("/bookings", async (request, response) => {
   if (!validateBooking(newBooking)) {
     return response.status(400).json({ error: "All fields are required and must not be empty" });
   }
-  
+
   bookings.push(newBooking);
 
   try {
@@ -88,7 +115,6 @@ app.delete("/bookings/:id", async (request, response) => {
     response.status(500).json({ error: "Failed to delete booking" });
   }
 });
-
 
 
 const listener = app.listen(process.env.PORT || 3000, () => {
