@@ -48,5 +48,25 @@
     "roomId": 3,
     "checkInDate": "2017-08-30",
     "checkOutDate": "2017-10-02"
+  },
+  {
+    "id": 6,
+    "roomId": 24,
+    "title": "Mrs",
+    "firstName": "Aisha Athman",
+    "surname": "Lali",
+    "email": "aishaathman2@gmail.com",
+    "checkInDate": "2024-05-24",
+    "checkOutDate": "2024-05-26"
+  },
+  {
+    "id": 7,
+    "roomId": 24,
+    "title": "Mrs",
+    "firstName": "Aisha Athman",
+    "surname": "Lali",
+    "email": "aishaathman2",
+    "checkInDate": "2024-05-24",
+    "checkOutDate": "2024-05-26"
   }
 ]
