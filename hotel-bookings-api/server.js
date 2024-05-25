@@ -53,30 +53,50 @@ app.get("/bookings", (request, response) => {
   response.json(bookings);
 });
 
-// Get bookings by search(date)
+// Get bookings by search(term) or search(date)
 app.get("/bookings/search", (request, response) => {
-  const { date } = request.query;
+  const { date, term } = request.query;
 
-  if (!date) {
-    return response.status(400).json({ error: "Date query parameter is required" });
+  if (date) {
+    const searchDate = moment(date, "YYYY-MM-DD");
+    if (!searchDate.isValid()) {
+      return response.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+    }
+
+    console.log(`Searching for bookings on date: ${searchDate.format("YYYY-MM-DD")}`);
+
+    const results = bookings.filter(booking => {
+      const checkInDate = moment(booking.checkInDate, "YYYY-MM-DD");
+      const checkOutDate = moment(booking.checkOutDate, "YYYY-MM-DD");
+      const isInRange = searchDate.isBetween(checkInDate, checkOutDate, null, '[]');
+
+      console.log(`Booking ID: ${booking.id}, Check-in: ${checkInDate.format("YYYY-MM-DD")}, Check-out: ${checkOutDate.format("YYYY-MM-DD")}, Is in range: ${isInRange}`);
+
+      return isInRange;
+    });
+
+    return response.json(results);
   }
 
-  const searchDate = moment(date, "YYYY-MM-DD");
-  if (!searchDate.isValid()) {
-    return response.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+  if (term) {
+    const searchTerm = term.toLowerCase();
+
+    console.log(`Searching for bookings with term: ${searchTerm}`);
+
+    const results = bookings.filter(booking => {
+      const matchesEmail = booking.email && booking.email.toLowerCase().includes(searchTerm);
+      const matchesFirstName = booking.firstName && booking.firstName.toLowerCase().includes(searchTerm);
+      const matchesSurname = booking.surname && booking.surname.toLowerCase().includes(searchTerm);
+
+      console.log(`Booking ID: ${booking.id}, Email: ${matchesEmail}, FirstName: ${matchesFirstName}, Surname: ${matchesSurname}`);
+
+      return matchesEmail || matchesFirstName || matchesSurname;
+    });
+
+    return response.json(results);
   }
 
-  console.log(`Searching for bookings on date: ${searchDate.format("YYYY-MM-DD")}`);
-
-  const results = bookings.filter(booking => {
-    const checkInDate = moment(booking.checkInDate, "YYYY-MM-DD");
-    const checkOutDate = moment(booking.checkOutDate, "YYYY-MM-DD");
-    const isInRange = searchDate.isBetween(checkInDate, checkOutDate, null, '[]');
-    console.log(`Booking ID: ${booking.id}, Check-in: ${checkInDate.format("YYYY-MM-DD")}, Check-out: ${checkOutDate.format("YYYY-MM-DD")}, Is in range: ${isInRange}`);
-    return isInRange;
-  });
-
-  response.json(results);
+  return response.status(400).json({ error: "A search term or date query parameter is required" });
 });
 
 //Read one specific booking by Id
