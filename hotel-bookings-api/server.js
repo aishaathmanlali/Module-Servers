@@ -7,6 +7,16 @@ import fs from "fs/promises";
 import moment from "moment";
 import validator from "validator";
 import bookings from "./bookings.json" with { type: "json" };
+import pkg from "pg";
+const {Pool} = pkg;
+
+const db = new Pool({
+  user: "aisha",
+  host: "localhost",
+  database: "my_hotels",
+  password: "",
+  port: 5432,
+});
 
 // initialise the server
 const app = express();
@@ -49,8 +59,14 @@ const validateBooking = (booking) => {
 };
 
 // Read all bookings
-app.get("/bookings", (request, response) => {
-  response.json(bookings);
+app.get("/bookings", function (request, response) {
+  db.query("SELECT customers.id, customers.name, customers.email, reservations.room_no, reservations.checkin_date, reservations.checkout_date FROM customers INNER JOIN reservations ON customers.id = reservations.cust_id;")
+    .then((result) => {
+      response.status(200).json({ bookings: result.rows });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 // Get bookings by search(term) or search(date)
