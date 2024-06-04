@@ -99,6 +99,8 @@ app.get("/bookings/search", (request, response) => {
 
     console.log(`Searching for bookings with term: ${searchTerm}`);
 
+
+    const tw = "() OR ()"
     const results = bookings.filter(booking => {
       const matchesEmail = booking.email && booking.email.toLowerCase().includes(searchTerm);
       const matchesFirstName = booking.firstName && booking.firstName.toLowerCase().includes(searchTerm);
@@ -108,6 +110,23 @@ app.get("/bookings/search", (request, response) => {
 
       return matchesEmail || matchesFirstName || matchesSurname;
     });
+
+    let sql = "SELECT c.id, c.name, c.email, r.room_no, r.checkin_date, r.checkout_date FROM customers AS c INNER JOIN reservations AS r ON c.id = r.cust_id WHERE ";
+
+  if (date) {
+    const searchDate = moment(date, "YYYY-MM-DD");
+    if (!searchDate.isValid()) {
+      return response.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+    }
+    console.log(`Searching for bookings on date: ${searchDate.format("YYYY-MM-DD")}`);
+    sql += "(searchDate BETWEEN r.checkin_date AND r.checkout_date)"
+  }
+  if (term) {
+    if (date) {
+      sql += " AND ";
+    }
+    sql += "() OR ()"
+  }
 
     return response.json(results);
   }
